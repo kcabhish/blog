@@ -12,7 +12,7 @@ export const AppLayout = ({children}) => {
             <div className="flex flex-col text-white overflow-hidden">
                 <div className="bg-slate-800 px-2">
                     <Logo />
-                    <Link href="/post/new" className="bg-green-500 tracking-wider text-center text-white cursor-pointer uppercase px-4 py-2 rounded-md hover:bg-green-600 transition-colors block">New Post</Link>
+                    <Link href="/post/new" className="btn">New Post</Link>
                     <Link href="/token-topup" className="block mt-2 text-center">
                         <FontAwesomeIcon icon={faCoins} className="text-yellow-500"/>
                         <span className="pl-1">0 Tokens Available</span>

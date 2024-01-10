@@ -1,3 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    .btn {
+        /* This is the way to create new class name or overwrite the existing tailwind components */
+        @apply bg-green-500 tracking-wider text-center text-white cursor-pointer uppercase px-4 py-2 rounded-md hover:bg-green-600 transition-colors block
+    }
+}
