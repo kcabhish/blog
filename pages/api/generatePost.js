@@ -1,7 +1,23 @@
-import { withApiAuthRequired } from '@auth0/nextjs-auth0';
+import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0';
 import { Configuration, OpenAIApi } from 'openai';
+import clientPromise from '../../lib/mongodb';
 
 export default withApiAuthRequired( async function handler(req, res) {
+
+    const {user} = await getSession(req,res);
+    const client = await clientPromise;
+    const db = client.db('BlogTopia');
+
+    const userProfile = await db.collection("users").findOne({
+        auth0Id: user.sub
+    });
+
+    // shortcircuit if there are no tokens available
+    if (userProfile?.avaibaleTokens) {
+        // user is autherised but not permitted
+        res.status(403);
+        return;
+    }
 
     const chatGptModel = 'gpt-3.5-turbo-1106';
     const config = new Configuration({
@@ -40,23 +56,47 @@ export default withApiAuthRequired( async function handler(req, res) {
         messages: [
             {
                 role: "system",
-                content: "You are an SEO friendly blog post generator called BlogStandard. You are designed to output JSON, Do not include HTML tags in your outputs"
+                content: "You are an SEO friendly blog post generator called BlogStandard. You are designed to output JSON, Do not include HTML tags in your output"
             },
             {
                 role: "user",
                 content: `Generate an SEO friendly title and SEO friendly meta description for the following blog post:
                         ${postContent}
                         ---
-                        The output json must be in following format
+                        The output json must be in following format:
                         {
-                            "title":"example title",
+                            "title": "example title",
                             "metaDescription": "example meta description"
                         }
                         `
             }],
-        response_format: { "type": "json_object" }
+        response_format: { type: "json_object" }
     });
 
-    const { title, metaDescription } = seoResponse.data.choices[0]?.message?.content || {};
-    res.status(200).json({ post: { postContent, title, metaDescription } });
+    const payload = seoResponse.data.choices[0]?.message?.content;
+    // console.log(payload);
+    // console.log(typeof(payload));
+
+    const { title, metaDescription } =(typeOf(payload) === 'string') ? JSON.parse(payload) : payload;
+    console.log(title);
+    console.log(metaDescription);
+    // decreasing the token after post generation
+    await db.collection("users").updateOne({
+        auth0Id: user.sub
+    },{
+        $inc: {
+            availableTokens: -1
+        }
+    });
+    const post = await db.collection("posts").insertOne({
+        postContent,
+        title,
+        metaDescription,
+        topic,
+        keywords,
+        userId: userProfile._id,
+        created: new Date()
+    })
+
+    res.status(200).json({ post: { postContent, title, metaDescription }});
 });
