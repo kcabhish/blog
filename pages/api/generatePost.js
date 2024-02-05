@@ -1,6 +1,8 @@
+import { withApiAuthRequired } from '@auth0/nextjs-auth0';
 import { Configuration, OpenAIApi } from 'openai';
 
-export default async function handler(req, res) {
+export default withApiAuthRequired( async function handler(req, res) {
+
     const chatGptModel = 'gpt-3.5-turbo-1106';
     const config = new Configuration({
         apiKey: process.env.OPENAI_API_KEY
@@ -57,4 +59,4 @@ export default async function handler(req, res) {
 
     const { title, metaDescription } = seoResponse.data.choices[0]?.message?.content || {};
     res.status(200).json({ post: { postContent, title, metaDescription } });
-}
+});

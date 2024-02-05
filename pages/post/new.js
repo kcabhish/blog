@@ -34,7 +34,7 @@ export default function NewPost(props) {
               Generate a blog post on the topic of:
             </strong>
           </label>
-          <textarea className="resize-none border border-slate-500 w-fll block my-2 px-4 py-2 rounded-sm" value={topic} onChange={(e) => setTopic(e.target.value)}/>
+          <textarea className="resize-none border border-slate-500 w-full block my-2 px-4 py-2 rounded-sm" value={topic} onChange={(e) => setTopic(e.target.value)}/>
         </div>
         <div>
           <label>
@@ -42,7 +42,7 @@ export default function NewPost(props) {
               Targeting the following keywords:
             </strong>
           </label>
-          <textarea className="resize-none border border-slate-500 w-fll block my-2 px-4 py-2 rounded-sm" value={keywords} onChange={(e) => setKeywords(e.target.value)}/>
+          <textarea className="resize-none border border-slate-500 w-full block my-2 px-4 py-2 rounded-sm" value={keywords} onChange={(e) => setKeywords(e.target.value)}/>
         </div>
         <button type="submit" className="btn">
           Generate
