@@ -2,12 +2,22 @@ import { getSession, withPageAuthRequired } from "@auth0/nextjs-auth0";
 import { AppLayout } from "../../components/AppLayout";
 import clientPromise from "../../lib/mongodb";
 import { ObjectId } from "mongodb";
+import Markdown from "react-markdown";
 
 // This type of file is called the dynamic route in next js
 export default function Post(props) {
   // console.log(props);
     return (
-      <div>{props.postContent}</div>
+      <div className="overflow-auto h-full">
+        <div className="max-w-screen-sm mx-auto">
+          <div className="text-sm mt-6 font-bold p-2 bg-stone-200 rounded-sm">
+            Blog Post
+          </div>
+          <Markdown>
+            {props.postContent || ""}
+          </Markdown>
+        </div>
+      </div>
     )
   }
 

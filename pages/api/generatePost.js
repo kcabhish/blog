@@ -74,10 +74,8 @@ export default withApiAuthRequired( async function handler(req, res) {
     });
 
     const payload = seoResponse.data.choices[0]?.message?.content;
-    // console.log(payload);
-    // console.log(typeof(payload));
 
-    const { title, metaDescription } =(typeOf(payload) === 'string') ? JSON.parse(payload) : payload;
+    const { title, metaDescription } = JSON.parse(payload);
     console.log(title);
     console.log(metaDescription);
     // decreasing the token after post generation
@@ -98,5 +96,8 @@ export default withApiAuthRequired( async function handler(req, res) {
         created: new Date()
     })
 
-    res.status(200).json({ post: { postContent, title, metaDescription }});
+    res.status(200).json({
+        // insertedId is generated from the insertOne method above
+        postId: post.insertedId,
+    });
 });
