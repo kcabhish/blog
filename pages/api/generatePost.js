@@ -76,8 +76,9 @@ export default withApiAuthRequired( async function handler(req, res) {
     const payload = seoResponse.data.choices[0]?.message?.content;
 
     const { title, metaDescription } = JSON.parse(payload);
-    console.log(title);
-    console.log(metaDescription);
+    // console.log(payload);
+    // console.log(title);
+    // console.log(metaDescription);
     // decreasing the token after post generation
     await db.collection("users").updateOne({
         auth0Id: user.sub

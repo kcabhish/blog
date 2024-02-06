@@ -3,13 +3,40 @@ import { AppLayout } from "../../components/AppLayout";
 import clientPromise from "../../lib/mongodb";
 import { ObjectId } from "mongodb";
 import Markdown from "react-markdown";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHashtag } from "@fortawesome/free-solid-svg-icons";
+import { getAppProps } from "../../utils/getAppProps";
 
 // This type of file is called the dynamic route in next js
 export default function Post(props) {
-  // console.log(props);
     return (
       <div className="overflow-auto h-full">
         <div className="max-w-screen-sm mx-auto">
+
+          <div className="text-sm mt-6 font-bold p-2 bg-stone-200 rounded-sm">
+            SEO title and meta description
+          </div>
+          <div className="p-4 my-2 border border-stone-200 rounded-md">
+            <div className="text-blue-600 text-2xl font-bold">
+              {props.title}
+            </div>
+            <div className='mt-2'>
+              {props.metaDescripotion}
+            </div>
+          </div>
+
+          <div className="text-sm mt-6 font-bold p-2 bg-stone-200 rounded-sm">
+            keywords
+          </div>
+          <div className="flex flex-wrap pt-2 gap-1">
+            {props.keywords.split(",").map((keyword, i) => {
+              return (<div key={i} className="p-2 rounded-full bg-slate-800 text-white">
+                <FontAwesomeIcon icon={faHashtag} />{keyword}
+              </div>)
+            })}
+          </div>
+
+
           <div className="text-sm mt-6 font-bold p-2 bg-stone-200 rounded-sm">
             Blog Post
           </div>
@@ -27,6 +54,7 @@ export default function Post(props) {
   
   export const getServerSideProps = withPageAuthRequired({
     async getServerSideProps(ctx){
+      const props = await getAppProps(ctx);
       const userSession = await getSession(ctx.req, ctx.res);
       const client = await clientPromise;
       const db = client.db("BlogTopia");
@@ -53,7 +81,8 @@ export default function Post(props) {
           postContent: post.postContent,
           title: post.title || null,
           metaDescripion: post.metaDescripion || null,
-          keywords: post.keywords
+          keywords: post.keywords,
+          ...props
         }
       }
     }

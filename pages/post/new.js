@@ -1,8 +1,8 @@
-import { withPageAuthRequired } from "@auth0/nextjs-auth0"
-import { AppLayout } from "../../components/AppLayout";
-import { useState } from 'react';
-import Markdown from "react-markdown";
+import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 import { useRouter } from "next/router";
+import { useState } from 'react';
+import { AppLayout } from "../../components/AppLayout";
+import { getAppProps } from "../../utils/getAppProps";
 
 export default function NewPost(props) {
   const router = useRouter();
@@ -54,9 +54,6 @@ export default function NewPost(props) {
         <button type="submit" className="btn">
           Generate
         </button>
-        {/* <Markdown>
-          {postContent}
-        </Markdown> */}
       </form>
     </div>)}
     </>
@@ -70,8 +67,11 @@ NewPost.getLayout = function getLayout(page, pageProps) {
 /**
  * getServerSideProps is a Next.js function that can be used fetch data and render the contents of a page at request time
  */
-export const getServerSideProps = withPageAuthRequired(() => {
-  return {
-    props: {}
-  };
+export const getServerSideProps = withPageAuthRequired({
+  async getServerSideProps(ctx){
+    const props = await getAppProps(ctx);
+    return {
+      props
+    }
+  }
 });
