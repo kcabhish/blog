@@ -4,9 +4,13 @@ import { getAppProps } from "../utils/getAppProps";
 
 export default function TokenTopup() {
   const handleClick = async() => {
-    await fetch(`/api/addTokens`, {
+    const result = await fetch(`/api/addTokens`, {
       method: 'POST',
     });
+    const json = await result.json();
+    // The result payload will have the url of the session checkout so we will need to navigate to that page to load the stripe's checkout page.
+    // The below code will redirect the application to that page
+    window.location.href = json.session.url;
   }
     return (
       <div>
