@@ -1,7 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 
 import { getSession } from "@auth0/nextjs-auth0";
-import clientPromise from '../../lib/mongodb';
 import stripeInit from 'stripe';
 
 // Setting up stripe payments
@@ -24,23 +23,16 @@ export default async function handler(req, res) {
         line_items: lineItems,
         mode: "payment",
         success_url: `${protocol}${host}/success`,
-    })
-    // console.log(user);
-    const client = await clientPromise;
-    const db = client.db("BlogTopia");
-
-    /**
-     * upsert that will update the user. if the user does not exist it will create one
-     */
-    const userProfile = await db.collection("users").updateOne({
-        auth0Id: user.sub
-    },{
-        $inc: {
-            availableTokens: 10
+        payment_intent_data: {
+            metadata: {
+                sub: user.sub
+            }
         },
-        $setOnInsert: {
-            auth0Id: user.sub
+        metadata: {
+            sub: user.sub
         }
-    }, {upsert: true});
+    })
+    console.log("Users", user);
+   
     res.status(200).json({ session: checkoutSession });
 }
