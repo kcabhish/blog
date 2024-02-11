@@ -1,5 +1,5 @@
 import Image from "next/image"
-import HeroImage from '../public/hero.webp';
+import HeroImage from '../public/backdrop2.jpg';
 import { Logo } from "../components/Logo";
 import Link from "next/link";
 

@@ -1,10 +1,10 @@
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
+import { faBrain } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter } from "next/router";
 import { useState } from 'react';
 import { AppLayout } from "../../components/AppLayout";
 import { getAppProps } from "../../utils/getAppProps";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBrain } from "@fortawesome/free-solid-svg-icons";
 
 export default function NewPost(props) {
   const router = useRouter();
