@@ -24,6 +24,11 @@ export default withApiAuthRequired( async function handler(req, res) {
         apiKey: process.env.OPENAI_API_KEY
     });
     const { topic, keywords } = req.body;
+
+    if (!topic || !keywords || topic.length>80 || keywords.length>80) {
+        res.status(422);
+        return;
+    }
     const openai = new OpenAIApi(config);
 
     const prompt = `Generate me a long and seo friendly blogpost on the following topic delimited by triple hyphens

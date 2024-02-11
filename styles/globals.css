@@ -3,6 +3,9 @@
 @tailwind utilities;
 
 @layer base {
+    a:hover{
+        @apply underline;
+    }
     h1, h2, h3, h4, h5, h6 {
         @apply font-heading my-6 font-bold;
     }
@@ -48,6 +51,6 @@
 @layer components {
     .btn {
         /* This is the way to create new class name or overwrite the existing tailwind components */
-        @apply bg-green-500 tracking-wider text-center text-white cursor-pointer uppercase px-4 py-2 rounded-md hover:bg-green-600 transition-colors block
+        @apply disabled:bg-green-200 disabled:cursor-not-allowed hover:no-underline bg-green-500 tracking-wider text-center text-white cursor-pointer uppercase px-4 py-2 rounded-md hover:bg-green-600 transition-colors block
     }
 }

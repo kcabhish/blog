@@ -6,7 +6,8 @@ const nextConfig = {
       'lh3.googleusercontent.com',
       'platform-lookaside.fbsbx.com',
       's.gravatar.com',
-      'avatars.githubusercontent.com'
+      'avatars.githubusercontent.com',
+      'apis.live.net'
     ]
   }
 }
