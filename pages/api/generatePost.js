@@ -2,7 +2,7 @@ import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0';
 import { Configuration, OpenAIApi } from 'openai';
 import clientPromise from '../../lib/mongodb';
 
-export default withApiAuthRequired( async function handler(req, res) {
+export default withApiAuthRequired(async function handler(req, res) {
 
     const {user} = await getSession(req,res);
     const client = await clientPromise;
@@ -81,9 +81,6 @@ export default withApiAuthRequired( async function handler(req, res) {
     const payload = seoResponse.data.choices[0]?.message?.content;
 
     const { title, metaDescription } = JSON.parse(payload);
-    // console.log(payload);
-    // console.log(title);
-    // console.log(metaDescription);
     // decreasing the token after post generation
     await db.collection("users").updateOne({
         auth0Id: user.sub

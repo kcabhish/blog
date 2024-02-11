@@ -10,8 +10,7 @@ import { useContext, useEffect } from "react";
 export const AppLayout = ({children, availableTokens, posts: postsFromSSR, postId, postCreated}) => {
     const { user } = useUser();
 
-    const { setPostsFromSSR, posts, getPosts, noMorePosts } =
-    useContext(PostsContext);
+    const { setPostsFromSSR, posts, getPosts, noMorePosts } = useContext(PostsContext);
 
   useEffect(() => {
     setPostsFromSSR(postsFromSSR);
@@ -29,6 +28,7 @@ export const AppLayout = ({children, availableTokens, posts: postsFromSSR, postI
                 <div className="bg-slate-800 px-2">
                     <Logo />
                     <Link href="/post/new" className="btn">New Post</Link>
+                    <Link href="/post/resume" className="btn">Resume Builder (Coming Soon)</Link>
                     <Link href="/token-topup" className="block mt-2 text-center">
                         <FontAwesomeIcon icon={faCoins} className="text-yellow-500"/>
                         <span className="pl-1">{availableTokens} Tokens Available</span>
@@ -40,8 +40,11 @@ export const AppLayout = ({children, availableTokens, posts: postsFromSSR, postI
                             return <Link className={`py-1 border border-white/0 block text-ellipsis overflow-hidden whitespace-nowrap my-1 px-2 bg-white/10 cursor-pointer rounded-sm ${postId === post._id ? 'bg-white/20 border-white' :''}`}
                                 key={post._id}
                                 href={`/post/${post._id}`}>{post.topic}</Link>
-                        })
-                    }
+                        })}
+                    <div onClick={() => {getPosts({lastPostDate: posts[posts.length -1].created})}}
+                        className="hover:underline text-sm text-slate-400 text-center cursor-pointer mt-4">
+                            Show More
+                    </div>
                 </div>
                 <div className="bg-cyan-800 flex items-center gap-2 border-t border-t-black/50 h-20 px-2">
                 {

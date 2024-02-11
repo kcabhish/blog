@@ -36,7 +36,7 @@ export default PostsContext;
 
 export const PostsProvider = ({ children }) => {
 //   const [posts, dispatch] = useReducer(postsReducer, []);
-//   const [noMorePosts, setNoMorePosts] = useState(false);
+  const [noMorePosts, setNoMorePosts] = useState(false);
 
 //   const deletePost = useCallback((postId) => {
 //     dispatch({
@@ -52,37 +52,45 @@ export const PostsProvider = ({ children }) => {
 //     });
 //   }, []);
 
-//   const getPosts = useCallback(
-//     async ({ lastPostDate, getNewerPosts = false }) => {
-//       const result = await fetch(`/api/getPosts`, {
-//         method: 'POST',
-//         headers: {
-//           'content-type': 'application/json',
-//         },
-//         body: JSON.stringify({ lastPostDate, getNewerPosts }),
-//       });
-//       const json = await result.json();
-//       const postsResult = json.posts || [];
-//       if (postsResult.length < 5) {
-//         setNoMorePosts(true);
-//       }
-//       dispatch({
-//         type: 'addPosts',
-//         posts: postsResult,
-//       });
-//     },
-//     []
-//   );
+ 
 
   const [posts, setPosts] = useState([]);
+
+  const getPosts = useCallback(
+    async ({ lastPostDate, getNewerPosts = false }) => {
+      const result = await fetch(`/api/getPosts`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({ lastPostDate, getNewerPosts }),
+      });
+      const json = await result.json();
+      const postsResults = json.posts || [];
+      if (postsResults.length < 5) {
+        setNoMorePosts(true);
+      }
+      setPosts(value => {
+        const newPosts = [...value];
+        postsResults.forEach((post) => {
+            const exists = newPosts.find((p) => p._id === post._id);
+            if (!exists) {
+                newPosts.push(post);
+            }
+        });
+        return newPosts;
+      })
+    },
+    []
+  );
   const setPostsFromSSR = useCallback((postsFromSSR = []) => {
-    console.log(setPostsFromSSR);
+    setPosts(postsFromSSR);
   }, []);
   return (
     <PostsContext.Provider
       value={{ posts,
         setPostsFromSSR,
-        // getPosts,
+        getPosts,
         // noMorePosts,
         // deletePost
         }}
