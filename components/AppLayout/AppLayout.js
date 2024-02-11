@@ -28,7 +28,7 @@ export const AppLayout = ({children, availableTokens, posts: postsFromSSR, postI
                 <div className="bg-slate-800 px-2">
                     <Logo />
                     <Link href="/post/new" className="btn">New Post</Link>
-                    <Link href="/post/resume" className="btn">Resume Builder (Coming Soon)</Link>
+                    <Link href="/resume/build" className="btn-primary">Resume Builder</Link>
                     <Link href="/token-topup" className="block mt-2 text-center">
                         <FontAwesomeIcon icon={faCoins} className="text-yellow-500"/>
                         <span className="pl-1">{availableTokens} Tokens Available</span>

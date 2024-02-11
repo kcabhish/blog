@@ -8,6 +8,8 @@ export default withApiAuthRequired(async function handler(req, res) {
     const client = await clientPromise;
     const db = client.db('BlogTopia');
 
+    const { topic, keywords } = req.body;
+
     const userProfile = await db.collection("users").findOne({
         auth0Id: user.sub
     });
@@ -23,7 +25,7 @@ export default withApiAuthRequired(async function handler(req, res) {
     const config = new Configuration({
         apiKey: process.env.OPENAI_API_KEY
     });
-    const { topic, keywords } = req.body;
+
 
     if (!topic || !keywords || topic.length>80 || keywords.length>80) {
         res.status(422);
@@ -46,7 +48,7 @@ export default withApiAuthRequired(async function handler(req, res) {
         messages: [
             {
                 role: "system",
-                content: "You are an SEO friendly blog post generator called BlogStandard. You are designed to output markdown without frontmatter"
+                content: "You are an SEO friendly blog post generator called BlogTopia. You are designed to output markdown without frontmatter"
             },
             {
                 role: "user",
@@ -89,12 +91,9 @@ export default withApiAuthRequired(async function handler(req, res) {
             availableTokens: -1
         }
     });
-    const post = await db.collection("posts").insertOne({
-        postContent,
-        title,
-        metaDescription,
-        topic,
-        keywords,
+    const post = await db.collection("jobs").insertOne({
+        jobDescription,
+        jobTitle,
         userId: userProfile._id,
         created: new Date()
     })

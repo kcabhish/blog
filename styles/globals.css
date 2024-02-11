@@ -53,4 +53,7 @@
         /* This is the way to create new class name or overwrite the existing tailwind components */
         @apply disabled:bg-green-200 disabled:cursor-not-allowed hover:no-underline bg-green-500 tracking-wider text-center text-white cursor-pointer uppercase px-4 py-2 rounded-md hover:bg-green-600 transition-colors block
     }
+    .btn-primary {
+        @apply btn bg-blue-600 hover:bg-blue-500;
+    }
 }
