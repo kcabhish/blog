@@ -63,7 +63,7 @@ export default withApiAuthRequired(async function handler(req, res) {
         messages: [
             {
                 role: "system",
-                content: "You are an SEO friendly blog post generator called BlogStandard. You are designed to output JSON, Do not include HTML tags in your output"
+                content: "You are an SEO friendly blog post generator called BlogTopia. You are designed to output JSON, Do not include HTML tags in your output"
             },
             {
                 role: "user",
@@ -91,9 +91,12 @@ export default withApiAuthRequired(async function handler(req, res) {
             availableTokens: -1
         }
     });
-    const post = await db.collection("jobs").insertOne({
-        jobDescription,
-        jobTitle,
+    const post = await db.collection("posts").insertOne({
+        postContent,
+        title,
+        metaDescription,
+        topic,
+        keywords,
         userId: userProfile._id,
         created: new Date()
     })

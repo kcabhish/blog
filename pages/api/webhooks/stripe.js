@@ -3,7 +3,10 @@ import Cors from 'micro-cors';
 import stripeInit from 'stripe';
 import clientPromise from '../../../lib/mongodb';
 import { verifyStripe } from '../../../utils/verifyStripe';
-
+/**
+ * to test this locally
+ * stripe listen --forward-to 192.168.86.224:3000/api/webhooks/stripe
+ */
 const cors = Cors({
     allowMethods: ['POST', 'HEAD']
 });

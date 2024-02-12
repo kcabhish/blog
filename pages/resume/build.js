@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { AppLayout } from "../../components/AppLayout";
 import { getAppProps } from "../../utils/getAppProps";
 import { sanitizeString } from "../../utils/utils";
+import Markdown from "react-markdown";
 
 export default function ResumeBuilder(props) {
   const router = useRouter();
@@ -14,6 +15,8 @@ export default function ResumeBuilder(props) {
   const [description, setDescription] = useState("");
   const [resume, setResume] = useState("");
   const [generating, setGenerating] = useState(false);
+
+  const [resDescription, setResDescription] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,18 +34,24 @@ export default function ResumeBuilder(props) {
         body: JSON.stringify({ title: sanitizedTitle, description: sanitizedDescription, resume: sanitizedResume })
       });
       const json = await response.json();
-      console.log(json);
-      // if (json?.postId) {
-      //   // redirecting to the route
-      //   router.push(`/post/${json.postId}`);
-      // }
+      // setResDescription(json?.jobDescription);
+      if (json?.jobId) {
+        // redirecting to the route
+        router.push(`/resume/${json.jobId}`);
+      }
     } catch (error) {
       setGenerating(false);
     }
   }
   return (
-    <div>
-      <h1>Resume Builder</h1>
+    <div className="h-full overflow-hidden">
+      {generating && (
+      <div className="text-green-500 flex h-full animate-pulse w-full flex-col justify-center items-center">
+        <FontAwesomeIcon icon={faBrain} className="text-8xl"/>
+        <h6>Generating...</h6>
+      </div>
+     )}
+     {!generating && (<div className="w-full h-full flex flex-col overflow-auto">
       <form onSubmit={handleSubmit} className="m-auto w-full max-w-screen-sm bg-slate-100 p-4 rounded-md shadow-xl border border-slate-200 shadow-slate-200">
           <div>
             <label>
@@ -80,10 +89,11 @@ export default function ResumeBuilder(props) {
             />
              <small className="block mb-2">Word Count : {resume.length}</small>
           </div>
-          <button type="submit" className="btn" disabled={!title.trim() || !description.trim() || !resume.trim()}>
-            Generate
+          <button type="submit" className="btn" disabled={!description.trim() || !resume.trim()}>
+            Analyze
           </button>
-        </form>
+      </form>
+      </div>)}
     </div>
   )
 }

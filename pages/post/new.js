@@ -41,7 +41,8 @@ export default function NewPost(props) {
         <h6>Generating...</h6>
       </div>
      )}
-      {!generating && (<div className="w-full h-full flex flex-col overflow-auto">
+      {!generating && (
+      <div className="w-full h-full flex flex-col overflow-auto">
         <form onSubmit={handleSubmit} className="m-auto w-full max-w-screen-sm bg-slate-100 p-4 rounded-md shadow-xl border border-slate-200 shadow-slate-200">
           <div>
             <label>
