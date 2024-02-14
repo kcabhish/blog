@@ -53,7 +53,7 @@ export default withApiAuthRequired(async function handler(req, res) {
         "salaryRange": "Recommend salary range to the user based on their experience inrelation to the job description and current market evaluation",
         "benefits": "provide information on the benefit package",
         "analysis": "provide analysis for the candidate based on job description and resume",
-        "coverLetter": "generate a professional cover letter",
+        "coverLetter": "generate a professional cover letter with professional summary that showcases my skills and experience releven to ${title}",
         "isQualified": "return a boolean value as true if the user is qualified for the job else return false"
     }
     `;
