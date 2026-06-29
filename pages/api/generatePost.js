@@ -2,108 +2,124 @@ import { getSession, withApiAuthRequired } from '@auth0/nextjs-auth0';
 import { Configuration, OpenAIApi } from 'openai';
 import clientPromise from '../../lib/mongodb';
 
-export default withApiAuthRequired( async function handler(req, res) {
-
-    const {user} = await getSession(req,res);
+export default withApiAuthRequired(async function handler(req, res) {
+  try {
+    const { user } = await getSession(req, res);
     const client = await clientPromise;
     const db = client.db('BlogTopia');
 
-    const userProfile = await db.collection("users").findOne({
-        auth0Id: user.sub
-    });
+    const userProfile = await db
+      .collection('users')
+      .findOne({ auth0Id: user.sub });
 
-    // shortcircuit if there are no tokens available
-    if (userProfile?.avaibaleTokens) {
-        // user is autherised but not permitted
-        res.status(403);
-        return;
+    // Validate user and tokens
+    if (!userProfile || userProfile.availableTokens <= 0) {
+      return res
+        .status(403)
+        .json({ error: 'Insufficient tokens or unauthorized access' });
     }
 
-    const chatGptModel = 'gpt-3.5-turbo-1106';
-    const config = new Configuration({
-        apiKey: process.env.OPENAI_API_KEY
-    });
     const { topic, keywords } = req.body;
 
-    if (!topic || !keywords || topic.length>80 || keywords.length>80) {
-        res.status(422);
-        return;
+    // Validate request body
+    if (!topic || !keywords || topic.length > 80 || keywords.length > 80) {
+      return res
+        .status(422)
+        .json({ error: 'Invalid topic or keywords length' });
     }
-    const openai = new OpenAIApi(config);
 
-    const prompt = `Generate me a long and seo friendly blogpost on the following topic delimited by triple hyphens
-    ---
-    ${topic}
-    ---
-    Targeting the following comma-separated keywords delimited by triple hyphens:
-    ---
-    ${keywords}
-    ---
+    // OpenAI Configuration
+    const openai = new OpenAIApi(
+      new Configuration({ apiKey: process.env.OPENAI_API_KEY })
+    );
+
+    const chatGptModel = 'gpt-4o';
+
+    // Generate Blog Content
+    const blogPrompt = `
+      Generate a long, SEO-friendly blog post on the following topic:
+      ---
+      ${topic}
+      ---
+      Targeting these comma-separated keywords:
+      ---
+      ${keywords}
+      ---
     `;
 
-    const response = await openai.createChatCompletion({
-        model: chatGptModel,
-        messages: [
-            {
-                role: "system",
-                content: "You are an SEO friendly blog post generator called BlogStandard. You are designed to output markdown without frontmatter"
-            },
-            {
-                role: "user",
-                content: prompt
-            }],
+    const blogResponse = await openai.createChatCompletion({
+      model: chatGptModel,
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You are an SEO-friendly blog post generator called BlogStandard. Output markdown without frontmatter.',
+        },
+        { role: 'user', content: blogPrompt },
+      ],
     });
 
-    const postContent = response.data.choices[0]?.message?.content;
+    const postContent = blogResponse.data.choices?.[0]?.message?.content;
+    if (!postContent) {
+      return res.status(500).json({ error: 'Failed to generate blog post' });
+    }
+
+    // Generate SEO Metadata
+    const seoPrompt = `
+      Generate an SEO-friendly title and meta description for the following blog post:
+      ---
+      ${postContent}
+      ---
+      Output JSON format:
+      {
+        "title": "Example title",
+        "metaDescription": "Example meta description"
+      }
+    `;
 
     const seoResponse = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo-1106",
-        messages: [
-            {
-                role: "system",
-                content: "You are an SEO friendly blog post generator called BlogStandard. You are designed to output JSON, Do not include HTML tags in your output"
-            },
-            {
-                role: "user",
-                content: `Generate an SEO friendly title and SEO friendly meta description for the following blog post:
-                        ${postContent}
-                        ---
-                        The output json must be in following format:
-                        {
-                            "title": "example title",
-                            "metaDescription": "example meta description"
-                        }
-                        `
-            }],
-        response_format: { type: "json_object" }
+      model: chatGptModel,
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You are an SEO-friendly blog post generator called BlogStandard. Output JSON only, without HTML tags.',
+        },
+        { role: 'user', content: seoPrompt },
+      ],
+      response_format: { type: 'json_object' },
     });
 
-    const payload = seoResponse.data.choices[0]?.message?.content;
+    const seoData = seoResponse.data.choices?.[0]?.message?.content;
+    if (!seoData) {
+      return res.status(500).json({ error: 'Failed to generate SEO metadata' });
+    }
 
-    const { title, metaDescription } = JSON.parse(payload);
-    // console.log(payload);
-    // console.log(title);
-    // console.log(metaDescription);
-    // decreasing the token after post generation
-    await db.collection("users").updateOne({
-        auth0Id: user.sub
-    },{
-        $inc: {
-            availableTokens: -1
-        }
-    });
-    const post = await db.collection("posts").insertOne({
+    const { title, metaDescription } = JSON.parse(seoData);
+
+    // Decrease token count and insert post atomically
+    const [updateResult, post] = await Promise.all([
+      db
+        .collection('users')
+        .updateOne({ auth0Id: user.sub }, { $inc: { availableTokens: -1 } }),
+      db.collection('posts').insertOne({
         postContent,
         title,
         metaDescription,
         topic,
         keywords,
         userId: userProfile._id,
-        created: new Date()
-    })
+        created: new Date(),
+      }),
+    ]);
 
-    res.status(200).json({
-        // insertedId is generated from the insertOne method above
-        postId: post.insertedId,
-    });
+    if (!updateResult.modifiedCount) {
+      return res.status(500).json({ error: 'Failed to update token count' });
+    }
+
+    res.status(200).json({ postId: post.insertedId });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
